@@ -1,0 +1,63 @@
+<html>
+<style>
+  .marker {
+    border: none;
+    height: 100px;
+    width: 100px;
+  }
+
+</style>
+<body>
+<center>
+<div id="parent" style="position:relative;width:100vh;height:100vh;">
+      <iframe class='marker' src='marker/builder/iframe.html#265' style="position:absolute;left:0;top:5"></iframe>
+      <iframe id="spe" class='marker' src='marker/builder/iframe.html#123' style="position:absolute;right:0;top:5"></iframe>
+      <iframe class='marker' src='marker/builder/iframe.html#10' style="position:absolute;right:0;bottom:5"></iframe>
+      <iframe class='marker' src='marker/builder/iframe.html#401' style="position:absolute;left:0;bottom:5"></iframe>
+      <button style="position:absolute;top:50%;left:0" id="pp">Prev Page</button>
+      <button style="position:absolute;top:50%;right:0" id="np">Next Page</button>
+      <img id="imgt" style="position:absolute;left:100px;top:105px;" src="pages/atoms.png"></img>
+</div>
+</center>
+</body>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script>
+document.getElementById("imgt").width=document.getElementById("parent").offsetWidth-200;
+document.getElementById("imgt").height=document.getElementById("parent").offsetHeight-210;
+
+ino = window.location.href.split('#')[1];
+console.log(ino);
+if (ino===undefined){
+ino = 0;
+console.log(ino);
+}
+images = ["atoms.png", "dandi.png", "hybridization.png", "rivers.png"];
+ino1 = parseInt(ino);
+document.getElementById("imgt").src = "pages/" + images[ino1];
+document.getElementById("spe").src = "marker/builder/iframe.html#"+(123+ino1)
+
+$('#pp').click(function(e){
+window.location.href = window.location.href.split('#')[0] + '#' + ((((ino1-1)%4)+4)%4);
+window.location.reload();
+});
+
+$('#np').click(function(e){
+window.location.href = window.location.href.split('#')[0] + '#' + ((((ino1+1)%4)+4)%4);
+window.location.reload();
+});
+
+$('#imgt').click(function(e)
+{
+    var offset_t = $(this).offset().top - $(window).scrollTop();
+    var offset_l = $(this).offset().left - $(window).scrollLeft();
+
+    var left = Math.round( (e.clientX - offset_l) );
+    var top = Math.round( (e.clientY - offset_t) );
+
+    // alert("X: " + (left/$('#imgt').width()) + " Y: " + (1 - (top/$('#imgt').height())));
+
+});
+
+
+</script>
+</html>

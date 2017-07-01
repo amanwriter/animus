@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<!-- include three.js -->
+<script src='vendor/three.js/build/three.js'></script>
+<script src='vendor/three.js/examples/js/libs/stats.min.js'></script>
+
+<!-- include js-aruco -->
+<script src='../vendor/js-aruco/svd.js'></script>
+<script src='../vendor/js-aruco/posit1-patched.js'></script>
+<script src='../vendor/js-aruco/cv.js'></script>
+<script src='../vendor/js-aruco/aruco.js'></script>
+
+<!-- include some extensions -->
+<script src='../threex.webcamgrabbing.js'></script>
+<script src='../threex.jsarucomarker.js'></script>
+
+<body style='margin: 0px; overflow: hidden;'>
+
+<canvas style="position:absolute;left:0;top:0;z-index:1000;" id="overlay"></canvas>
+
+<script>
+	;(function(){
+		// TODO backport those 2 in Detector.js
+		var hasGetUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia) ? true : false
+		//var hasMediaStreamTrackSources = MediaStreamTrack.getSources ? true : false
+		var hasMediaStreamTrackSources = navigator.mediaDevices.enumerateDevices ? true : false
+
+		var hasWebGL = ( function () { try { var canvas = document.createElement( 'canvas' ); return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) ); } catch ( e ) { return false; } } )()
+
+		if( hasWebGL === false ){
+			alert('your browser doesn\'t support navigator.getUserMedia()')
+		}
+		if( hasMediaStreamTrackSources === false ){
+			alert('your browser doesn\'t support MediaStreamTrack.getSources()')
+		}
+		if( hasGetUserMedia === false ){
+			alert('your browser doesn\'t support navigator.getUserMedia()')
+		}
+	})()
+	var detectMarkersEnabled	= true
+	var markerToObject3DEnabled	= true
+	var webglRenderEnabled		= true
+
+	var knowledge = [
+[{"heading": "atom_model", "coordinates": [0.21,0.26], "size": "large"}],
+[{"heading": "dandi_march", "coordinates": [0.4,0.75], "size": "large"}],
+[{"heading": "tetrahedral", "coordinates": [0.64,0.52], "size": "medium"},
+{"heading": "bipyramidal", "coordinates": [0.64,0.34], "size": "medium"},
+{"heading": "octahedral", "coordinates": [0.64,0.13], "size": "medium"}],
+[{"heading": "bhakra_nangal", "coordinates": [0.32,0.74], "size": "small"},
+ {"heading": "hirakud", "coordinates": [0.54,0.45], "size": "small"},
+ {"heading": "nagarjuna", "coordinates": [0.38,0.3], "size": "small"},
+ {"heading": "gandhisagar", "coordinates": [0.27,0.54], "size": "small"}
+]
+];
+	var taps = [];
+
+	var detectMarkersStats = new Stats();
+	detectMarkersStats.setMode( 1 );
+	document.body.appendChild( detectMarkersStats.domElement );
+        detectMarkersStats.domElement.style.position = 'absolute'
+	detectMarkersStats.domElement.style.bottom = '0px'
+	detectMarkersStats.domElement.style.right = '0px'
+
+	var renderStats = new Stats();
+	renderStats.setMode( 0 );
+	document.body.appendChild( renderStats.domElement );
+        renderStats.domElement.style.position = 'absolute'
+	renderStats.domElement.style.bottom = '0px'
+	renderStats.domElement.style.left = '0px'
+	var renderer	= new THREE.WebGLRenderer({
+		antialias	: true,
+		alpha		: true,
+	});
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.getElementById("overlay").width=window.innerWidth;
+	document.getElementById("overlay").height=window.innerHeight;
+
+	document.body.appendChild( renderer.domElement );
+
+	// array of functions for the rendering loop
+	var onRenderFcts = [];
+
+	// init scene and camera
+	var scene = new THREE.Scene()
+	var camera	= new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.01, 1000);
+	camera.position.z = 2;
+
+	var markerObject3D = new THREE.Object3D()
+	scene.add(markerObject3D)
+
+var y_axis = new THREE.Vector3(0.5,0.5,0);
+
+var shape = new THREE.SphereGeometry(0.1, 0.2, 0.2);
+var cover = new THREE.MeshBasicMaterial({color: 0x3333ff});
+var cover2 = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+var cover3 = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+var nucleus = new THREE.Mesh(shape, cover);
+nucleus.position.set(0,0,-2);
+scene.add(nucleus);
+var electronShape = new THREE.SphereGeometry(0.02, 0.02, 0.02);
+var electron1 = new THREE.Mesh(electronShape, cover2);
+nucleus.add(electron1);
+electron1.position.set(-1.50,1.50,10);
+var electron2 = new THREE.Mesh(electronShape, cover2);
+nucleus.add(electron2);
+electron2.position.set(1.50,1.50,10);
+var electron3 = new THREE.Mesh(electronShape, cover2);
+nucleus.add(electron3);
+electron3.position.set(0,0,1.5);
+
+var moleculeShape = new THREE.SphereGeometry(0.1, 0.2, 0.2);
+var moleculeShape1 = new THREE.SphereGeometry(0.05, 0.2, 0.2);
+
+nucleus.visible = false;
+
+var tetrahedral = new THREE.Mesh(shape, cover);
+tetrahedral.position.set(0,0,-2);
+
+
+var t_molecule1 = new THREE.Mesh(moleculeShape1, cover3);
+tetrahedral.add(t_molecule1);
+t_molecule1.position.set(0.4,0.4,0.4);
+var t_molecule2 = new THREE.Mesh(moleculeShape1, cover3);
+tetrahedral.add(t_molecule2);
+t_molecule2.position.set(0.4,-0.4,-0.4);
+var t_molecule3 = new THREE.Mesh(moleculeShape1, cover3);
+tetrahedral.add(t_molecule3);
+t_molecule3.position.set(-0.4,0.4,-0.4);
+var t_molecule4 = new THREE.Mesh(moleculeShape1, cover3);
+tetrahedral.add(t_molecule4);
+t_molecule4.position.set(-0.4,-0.4,0.4);
+scene.add(tetrahedral);
+tetrahedral.visible = false;
+
+
+var bipyramidal = new THREE.Mesh(shape, cover);
+bipyramidal.position.set(0,0,-2);
+
+var p_molecule1 = new THREE.Mesh(moleculeShape1, cover3);
+bipyramidal.add(p_molecule1);
+p_molecule1.position.set(0.4,0.0,0.0);
+var p_molecule2 = new THREE.Mesh(moleculeShape1, cover3);
+bipyramidal.add(p_molecule2);
+p_molecule2.position.set(-0.2828,0.0,0.2828);
+var p_molecule3 = new THREE.Mesh(moleculeShape1, cover3);
+bipyramidal.add(p_molecule3);
+p_molecule3.position.set(-0.2828,0.0,-0.2828);
+var p_molecule4 = new THREE.Mesh(moleculeShape1, cover3);
+bipyramidal.add(p_molecule4);
+p_molecule4.position.set(0,-0.4,0);
+var p_molecule5 = new THREE.Mesh(moleculeShape1, cover3);
+bipyramidal.add(p_molecule5);
+p_molecule5.position.set(0,0.4,0);
+
+scene.add(bipyramidal);
+bipyramidal.visible = false;
+
+var octahedral = new THREE.Mesh(shape, cover);
+octahedral.position.set(0,0,-2);
+
+var o_molecule1 = new THREE.Mesh(moleculeShape1, cover3);
+octahedral.add(o_molecule1);
+o_molecule1.position.set(0.4,0.0,0.0);
+var o_molecule2 = new THREE.Mesh(moleculeShape1, cover3);
+octahedral.add(o_molecule2);
+o_molecule2.position.set(-0.4,0,0);
+var o_molecule3 = new THREE.Mesh(moleculeShape1, cover3);
+octahedral.add(o_molecule3);
+o_molecule3.position.set(0,0.4,0);
+var o_molecule4 = new THREE.Mesh(moleculeShape1, cover3);
+octahedral.add(o_molecule4);
+o_molecule4.position.set(0,-0.4,0);
+var o_molecule5 = new THREE.Mesh(moleculeShape1, cover3);
+octahedral.add(o_molecule5);
+o_molecule5.position.set(0,0,0.4);
+var o_molecule6 = new THREE.Mesh(moleculeShape1, cover3);
+octahedral.add(o_molecule6);
+o_molecule6.position.set(0,0,-0.4);
+
+scene.add(octahedral);
+octahedral.visible = false;
+
+		nucleus.scale.x = 2;
+		nucleus.scale.y = 2;
+		nucleus.scale.z = 2;
+
+		tetrahedral.scale.x = 1.5;
+		tetrahedral.scale.y = 1.5;
+		tetrahedral.scale.z = 1.5;
+
+		bipyramidal.scale.x = 1.5;
+		bipyramidal.scale.y = 1.5;
+		bipyramidal.scale.z = 1.5;
+
+		octahedral.scale.x = 1.5;
+		octahedral.scale.y = 1.5;
+		octahedral.scale.z = 1.5;
+
+var clock = new THREE.Clock();
+
+
+	;(function(){
+		var geometry = new THREE.PlaneGeometry(1,1,10,10)
+		var material = new THREE.MeshBasicMaterial( {
+			wireframe : true
+		})
+		var mesh = new THREE.Mesh(geometry, material);
+		markerObject3D.add( mesh );
+
+		var mesh = new THREE.AxisHelper
+		markerObject3D.add( mesh );
+	})()
+
+	// handle window resize
+	window.addEventListener('resize', function(){
+		document.getElementById("overlay").width=window.innerWidth;
+		document.getElementById("overlay").height=window.innerHeight;
+		document.getElementById("overlay").style.zIndex = "1000";
+		renderer.setSize( window.innerWidth, window.innerHeight )
+		camera.aspect	= window.innerWidth / window.innerHeight
+		camera.updateProjectionMatrix()
+	}, false)
+
+	//rad = 0;
+	// render the scene
+	onRenderFcts.push(function(){
+		renderStats.begin();
+		if( webglRenderEnabled === true ){
+			renderer.render( scene, camera );
+
+	var t = clock.getElapsedTime()/2;
+	// rad+= 0.01;
+	tetrahedral.rotateOnAxis(y_axis, 0.01);
+	octahedral.rotateOnAxis(y_axis, 0.01);
+	bipyramidal.rotateOnAxis(y_axis, 0.01);
+	//nucleus.rotateOnAxis(y_axis, 0.01);
+  electron1.position.x = Math.sin(5*t) * -0.2;
+  electron1.position.y = Math.sin(5*t) * 0.2;
+  electron1.position.z = Math.cos(5*t) * 0.2;
+
+  // orbit from top right to bottom left
+  electron2.position.x = Math.cos(5*t) * 0.2;
+  electron2.position.y = Math.cos(5*t) * 0.2;
+  electron2.position.z = Math.sin(5*t) * 0.2;
+
+  var tOffset = 1.5 + clock.getElapsedTime()/2;
+
+  // orbit from the bottom to the top
+  electron3.position.x = Math.sin(5*tOffset) * 0;
+  electron3.position.y = Math.sin(5*tOffset) * -0.2;
+  electron3.position.z = Math.cos(5*tOffset) * -0.2;
+		}
+		renderStats.end();
+	})
+
+	// run the rendering loop
+	var previousTime = performance.now()
+	requestAnimationFrame(function animate(now){
+
+		requestAnimationFrame(animate);
+
+		onRenderFcts.forEach(function(onRenderFct){
+			onRenderFct(now, now - previousTime)
+		})
+
+		previousTime	= now
+	})
+
+	// init the marker recognition
+	var jsArucoMarker	= new THREEx.JsArucoMarker()
+
+	// if no specific image source is specified, take the webcam by default
+	if( location.hash === '' )	location.hash = '#webcam'
+
+	// init the image source grabbing
+	if( location.hash === '#video' ){
+		var videoGrabbing = new THREEx.VideoGrabbing()
+		jsArucoMarker.videoScaleDown = 2
+	}else if( location.hash === '#webcam' ){
+		var videoGrabbing = new THREEx.WebcamGrabbing()
+		jsArucoMarker.videoScaleDown = 2
+	}else if( location.hash === '#image' ){
+		var videoGrabbing = new THREEx.ImageGrabbing()
+		jsArucoMarker.videoScaleDown = 10
+	}else console.assert(false)
+
+	// attach the videoGrabbing.domElement to the body
+        document.body.appendChild(videoGrabbing.domElement)
+
+	// set the markerObject3D as visible
+	markerObject3D.visible	= false
+	corners = [{x:-50,y:-50},{x:50,y:-50},{x:50,y:50},{x:-50,y:50}]
+	// process the image source with the marker recognition
+	//ctx = renderer.context;
+	onRenderFcts.push(function(){
+
+		if( detectMarkersEnabled === false )	return
+		var domElement	= videoGrabbing.domElement
+		detectMarkersStats.begin();
+		var markers	= jsArucoMarker.detectMarkers(domElement)
+		detectMarkersStats.end();
+
+		if( markerToObject3DEnabled === false )	return
+		markerObject3D.visible = false
+		//nucleus.visible = false
+		// see if this.markerId has been found
+		taps = [];
+		jsArucoMarker.markersToObject3D(markers, markerObject3D, corners, taps);
+	})
+
+$('#overlay').on('click touchstart', function (event) {
+//console.log(event.pageX);
+
+clx = event.pageX;
+cly = event.pageY;
+
+if (nucleus.visible){nucleus.visible=false;}
+if (tetrahedral.visible){tetrahedral.visible=false;}
+if (bipyramidal.visible){bipyramidal.visible=false;}
+if (octahedral.visible){octahedral.visible=false;}
+
+if (taps.length<1){return}
+if (taps[0]<0){return}
+selected_index = -1;
+for (var i=1;i<taps.length;i++){
+	if (((clx-taps[i][0])*(clx-taps[i][0]) + (cly-taps[i][1])*(cly-taps[i][1])) < 900){
+		selected_index = i;
+		break;
+	}
+}
+
+if (selected_index<0){return}
+
+if (taps[0] == 1){$('#dandi_march').modal('toggle');}
+if (taps[0] == 0){nucleus.visible = true;}
+if (taps[0] == 2){
+	if (selected_index==1){tetrahedral.visible = true;}
+	if (selected_index==2){bipyramidal.visible = true;}
+	if (selected_index==3){octahedral.visible = true;}
+}
+
+if (taps[0] == 3){
+	open_modal = knowledge[3][selected_index-1].heading;
+	$('#'+open_modal).modal('toggle');}
+
+
+});
+
+</script>
+
+
+  <div class="modal fade" id="dandi_march" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Dandi March</h4>
+        </div>
+        <div class="modal-body">
+<div style="position:relative;height:0;padding-bottom:56.25%"><iframe src="https://www.youtube.com/embed/WCvuo_NZcjo?ecver=2" width="640" height="360" frameborder="0" style="position:absolute;width:100%;height:100%;left:0" allowfullscreen></iframe></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+  <div class="modal fade" id="bhakra_nangal" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Bhakra Nangal Dam</h4>
+        </div>
+        <div class="modal-body">
+        <img src="bhakra_nangal.png" style="min-width:100%;"></img>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+  <div class="modal fade" id="hirakud" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Hirakud Dam</h4>
+        </div>
+        <div class="modal-body">
+        <img src="hirakud.png" style="min-width:100%;"></img>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+  <div class="modal fade" id="nagarjuna" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Nagarjuna Sagar Dam</h4>
+        </div>
+        <div class="modal-body">
+        <img src="nagarjuna.png" style="min-width:100%;"></img>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+  <div class="modal fade" id="gandhisagar" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Gandhi Sagar Dam</h4>
+        </div>
+        <div class="modal-body">
+        <img src="gandhisagar.png" style="min-width:100%;"></img>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+</body>
