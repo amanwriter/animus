@@ -110,7 +110,7 @@ THREEx.JsArucoMarker = function(){
 		return markers
 	}
 
-	this.markersToObject3D = function(markers, object3d, corners, taps){
+	this.markersToObject3D = function(markers, object3d, corners, taps, pg_no){
 		// convert corners coordinate - not sure why
 		// var corners = []//marker.corners;
 		// var m_ids = [265, 123, 10, 401];
@@ -150,6 +150,7 @@ THREEx.JsArucoMarker = function(){
 		ctx.lineTo(cx0, cy0);
 		ctx.stroke();
 		ctx.closePath();
+		if (pgid < 0){pgid = pg_no;}
 		if (pgid>-1){
 			taps.push(pgid)
 		for (var i=0;i<this.knowledge[pgid].length;i++){
@@ -199,6 +200,7 @@ THREEx.JsArucoMarker = function(){
 		object3d.position.x =  translation[0];
 		object3d.position.y =  translation[1];
 		object3d.position.z = -translation[2];
+		return pgid
 	}
 
 	/**

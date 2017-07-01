@@ -25,6 +25,7 @@
 <canvas style="position:absolute;left:0;top:0;z-index:1000;" id="overlay"></canvas>
 
 <script>
+	pg_no = 0
 	;(function(){
 		// TODO backport those 2 in Detector.js
 		var hasGetUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia) ? true : false
@@ -299,6 +300,7 @@ var clock = new THREE.Clock();
 	corners = [{x:-50,y:-50},{x:50,y:-50},{x:50,y:50},{x:-50,y:50}]
 	// process the image source with the marker recognition
 	//ctx = renderer.context;
+
 	onRenderFcts.push(function(){
 
 		if( detectMarkersEnabled === false )	return
@@ -312,7 +314,7 @@ var clock = new THREE.Clock();
 		//nucleus.visible = false
 		// see if this.markerId has been found
 		taps = [];
-		jsArucoMarker.markersToObject3D(markers, markerObject3D, corners, taps);
+		pg_no = jsArucoMarker.markersToObject3D(markers, markerObject3D, corners, taps, pg_no);
 	})
 
 $('#overlay').on('click touchstart', function (event) {
@@ -383,7 +385,7 @@ if (taps[0] == 3){
           <h4 class="modal-title">Bhakra Nangal Dam</h4>
         </div>
         <div class="modal-body">
-        <img src="bhakra_nangal.png"></img>
+        <img src="bhakra_nangal.png" style="width:100%;"></img>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -402,7 +404,7 @@ if (taps[0] == 3){
           <h4 class="modal-title">Hirakud Dam</h4>
         </div>
         <div class="modal-body">
-        <img src="hirakud.png"></img>
+        <img src="hirakud.png" style="width:100%;"></img>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -421,7 +423,7 @@ if (taps[0] == 3){
           <h4 class="modal-title">Nagarjuna Sagar Dam</h4>
         </div>
         <div class="modal-body">
-        <img src="nagarjuna.png"></img>
+        <img src="nagarjuna.png" style="width:100%;"></img>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -439,7 +441,7 @@ if (taps[0] == 3){
           <h4 class="modal-title">Gandhi Sagar Dam</h4>
         </div>
         <div class="modal-body">
-        <img src="gandhisagar.png"></img>
+        <img src="gandhisagar.png" style="width:100%;"></img>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
