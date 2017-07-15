@@ -13,7 +13,7 @@ THREEx.JsArucoMarker = function(){
 
 	this.knowledge = [
 [{"heading": "atom_model", "coordinates": [0.21,0.26], "size": "large"}],
-[{"heading": "dandi_march", "coordinates": [0.4,0.75], "size": "large"}],
+[{"heading": "dandi_march", "coordinates": [0.4,0.75], "size": "large", "viewbox": [[0.094, 0.89],[0.68,0.89],[0.094, 0.6],[0.7,0.6]]}],
 [{"heading": "tetrahedral", "coordinates": [0.64,0.52], "size": "medium"},
 {"heading": "bipyramidal", "coordinates": [0.64,0.34], "size": "medium"},
 {"heading": "octahedral", "coordinates": [0.64,0.13], "size": "medium"}],
@@ -23,6 +23,25 @@ THREEx.JsArucoMarker = function(){
  {"heading": "gandhisagar", "coordinates": [0.27,0.54], "size": "small"}
 ]
 ]
+
+	var vidElem = document.createElement('video')
+	vidElem.src = '../gandhi.mp4';//'http://upload.wikimedia.org/wikipedia/commons/7/79/Big_Buck_Bunny_small.ogv';
+	vidElem.controls = false;
+	vidElem.style.display = 'none';
+	vidElem.autoplay = true;
+	vidElem.loop = true;
+	vidElem.load();
+
+// vidElem.addEventListener('play', function () {
+//     var $this = this; //cache
+//     (function loop() {
+//         if (!$this.paused && !$this.ended) {
+//             ctx.drawImage($this, 0, 0);
+//             setTimeout(loop, 1000 / 30); // drawing at 30fps
+//         }
+//     })();
+// }, 0);
+
 
 	var canvasElement = document.createElement('canvas')
 	var context = canvasElement.getContext("2d");
@@ -99,7 +118,7 @@ THREEx.JsArucoMarker = function(){
 			if( videoElement.videoWidth !== undefined ){
 				debugElement.querySelector('.info .videoSize').innerHTML = videoElement.videoWidth + 'x' + videoElement.videoHeight
 			}else{
-				debugElement.querySelector('.info .videoSize').innerHTML = videoElement.naturalWidth + 'x' + videoElement.naturalHeight				
+				debugElement.querySelector('.info .videoSize').innerHTML = videoElement.naturalWidth + 'x' + videoElement.naturalHeight
 			}
 			debugElement.querySelector('.info .canvasSize').innerHTML = canvasElement.width + 'x' + canvasElement.height
 			drawDebug(markers, canvasElement)
@@ -165,7 +184,14 @@ THREEx.JsArucoMarker = function(){
 			taps.push([px+rx/2,py+rx/2]);
 
 			//console.log([px,py,rx]);
-			ctx.fillRect(px,py,rx,rx);
+
+		}
+		if (pgid==1){
+			vx = pgpnts[1][0] + (pgpnts[0][0]-pgpnts[1][0])*this.knowledge[pgid][0].viewbox[0][0]
+			vy = pgpnts[1][1] + (pgpnts[2][1]-pgpnts[1][1])*this.knowledge[pgid][0].viewbox[0][1]
+			vx1 = pgpnts[1][0] + (pgpnts[0][0]-pgpnts[1][0])*this.knowledge[pgid][0].viewbox[1][0]
+			vy1 = pgpnts[1][1] + (pgpnts[2][1]-pgpnts[1][1])*this.knowledge[pgid][0].viewbox[2][1]
+			ctx.drawImage(vidElem, vx, vy, Math.round(vx1-vx), Math.round(vy1-vy));
 		}
 
 }
