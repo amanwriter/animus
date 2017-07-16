@@ -23,25 +23,16 @@ THREEx.JsArucoMarker = function(){
  {"heading": "gandhisagar", "coordinates": [0.27,0.54], "size": "small"}
 ]
 ]
+	var vidCont = document.createElement('div');
+	vidCont.style.display = 'none';
+	vidCont.innerHTML = '<video id="videofg" autoplay muted loop><source src="../gandhi.mp4" type="video/mp4" /></video>';
 
-	var vidElem = document.createElement('video')
-	vidElem.src = '../gandhi.mp4';//'http://upload.wikimedia.org/wikipedia/commons/7/79/Big_Buck_Bunny_small.ogv';
-	vidElem.controls = false;
-	vidElem.style.display = 'none';
-	vidElem.autoplay = true;
-	vidElem.loop = true;
+	document.body.appendChild(vidCont);
+	var vidElem = document.getElementById('videofg');
+
+	console.log(vidCont);
+	console.log(vidElem);
 	vidElem.load();
-
-// vidElem.addEventListener('play', function () {
-//     var $this = this; //cache
-//     (function loop() {
-//         if (!$this.paused && !$this.ended) {
-//             ctx.drawImage($this, 0, 0);
-//             setTimeout(loop, 1000 / 30); // drawing at 30fps
-//         }
-//     })();
-// }, 0);
-
 
 	var canvasElement = document.createElement('canvas')
 	var context = canvasElement.getContext("2d");
@@ -182,8 +173,8 @@ THREEx.JsArucoMarker = function(){
 			px = Math.round(px);
 			py = Math.round(py);
 			taps.push([px+rx/2,py+rx/2]);
-
-			//console.log([px,py,rx]);
+			// ctx.fillRect(px,py,rx,rx);
+			// console.log([px,py,rx]);
 
 		}
 		if (pgid==1){
@@ -195,7 +186,7 @@ THREEx.JsArucoMarker = function(){
 		}
 
 }
-
+		// ctx.drawImage(vidElem, 0, 0, 200,100);
 		// console.log(corners);
 		// for (var i = 0; i < marker.corners.length; ++ i){
 		// 	corners.push({
