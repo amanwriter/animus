@@ -26,7 +26,7 @@ THREEx.JsArucoMarker = function(){
 	var vidCont = document.createElement('div');
 	// vidCont.style.display = 'none';
 	vidCont.style.opacity = 0;
-	vidCont.innerHTML = '<video id="videofg" autoplay muted loop><source src="../gandhi.mp4" type="video/mp4" /></video>';
+	vidCont.innerHTML = '<video id="videofg" autoplay muted loop><source src="../dandi2.mp4" type="video/mp4" /></video>';
 
 	document.body.appendChild(vidCont);
 	var vidElem = document.getElementById('videofg');
@@ -176,9 +176,9 @@ THREEx.JsArucoMarker = function(){
 			py = Math.round(py);
 			taps.push([px+rx/2,py+rx/2]);
 
-			ctx.fillRect(Math.round((canv.width*this.knowledge[pgid][i].coordinates[0])-rx/2),
-				Math.round((canv.height*(1-this.knowledge[pgid][i].coordinates[1]))-rx/2),
-				rx,rx);
+			//ctx.fillRect(Math.round((canv.width*this.knowledge[pgid][i].coordinates[0])-rx/2),
+			//	Math.round((canv.height*(1-this.knowledge[pgid][i].coordinates[1]))-rx/2),
+			//	rx,rx);
 			// console.log([px,py,rx]);
 
 		}
