@@ -197,7 +197,7 @@ THREEx.JsArucoMarker = function(){
 		}
 
 }
-		ctx.fillRect(100,0,100,100);
+		// ctx.fillRect(100,0,100,100);
 		// PERSPECTIVE TRANSFORM CANV
 		var canvaso = document.getElementById('canvaso');
 		var texture = canvaso.texture(canv);
