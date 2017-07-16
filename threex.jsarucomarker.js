@@ -24,7 +24,8 @@ THREEx.JsArucoMarker = function(){
 ]
 ]
 	var vidCont = document.createElement('div');
-	vidCont.style.display = 'none';
+	// vidCont.style.display = 'none';
+	vidCont.style.opacity = 0;
 	vidCont.innerHTML = '<video id="videofg" autoplay muted loop><source src="../gandhi.mp4" type="video/mp4" /></video>';
 
 	document.body.appendChild(vidCont);
