@@ -16,14 +16,14 @@
       <iframe class='marker' src='marker/builder/iframe.html#401' style="position:absolute;left:0;bottom:5"></iframe>
       <button style="position:absolute;top:50%;left:0" id="pp">Prev Page</button>
       <button style="position:absolute;top:50%;right:0" id="np">Next Page</button>
-      <img id="imgt" style="position:absolute;left:100px;top:105px;" src="pages/atoms.png"></img>
+      <img id="imgt" style="position:absolute;left:100px;top:15px;" src="pages/atoms.png"></img>
 </div>
 </center>
 </body>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script>
 document.getElementById("imgt").width=document.getElementById("parent").offsetWidth-200;
-document.getElementById("imgt").height=document.getElementById("parent").offsetHeight-210;
+document.getElementById("imgt").height=document.getElementById("parent").offsetHeight-30;
 
 ino = window.location.href.split('#')[1];
 console.log(ino);

@@ -13,7 +13,7 @@ THREEx.JsArucoMarker = function(){
 
 	this.knowledge = [
 [{"heading": "atom_model", "coordinates": [0.21,0.26], "size": "large"}],
-[{"heading": "dandi_march", "coordinates": [0.4,0.75], "size": "large", "viewbox": [[0.094, 0.89],[0.68,0.89],[0.094, 0.6],[0.7,0.6]]}],
+[{"heading": "dandi_march", "coordinates": [0.4,0.75], "size": "large", "viewbox": [[0.12, 0.92],[0.7,0.92],[0.12, 0.6],[0.7,0.6]]}],
 [{"heading": "tetrahedral", "coordinates": [0.64,0.52], "size": "medium"},
 {"heading": "bipyramidal", "coordinates": [0.64,0.34], "size": "medium"},
 {"heading": "octahedral", "coordinates": [0.64,0.13], "size": "medium"}],
@@ -126,6 +126,7 @@ THREEx.JsArucoMarker = function(){
 		// var corners = []//marker.corners;
 		// var m_ids = [265, 123, 10, 401];
 		var m_ids = [10, 401, 265, 123, 124,125,126]
+		var npos = {0:3, 1:2, 2:1, 3:0}
 		var pgid = -1;
 		markers.forEach(function(marker){
 			// console.log(marker.id);
@@ -133,6 +134,7 @@ THREEx.JsArucoMarker = function(){
 			pos = m_ids.indexOf(marker.id);
 			if (pos>2){pgid=pos-3;pos = 3;}
 			if (pos>-1){
+			pos = npos[pos];
 			corners[pos] = {
 				x : marker.corners[pos].x - (canvasElement.width / 2),
 				y : (canvasElement.height / 2) - marker.corners[pos].y
@@ -204,8 +206,9 @@ THREEx.JsArucoMarker = function(){
 		var before = [0,0, canv.width,0, 0,canv.height, canv.width,canv.height];
 		// var after = [pgpnts[3][0],pgpnts[3][1], pgpnts[2][0],pgpnts[2][1],
 		// pgpnts[0][0],pgpnts[0][1], pgpnts[1][0],pgpnts[1][1]];
-		var after = [pgpnts[2][0],pgpnts[2][1], pgpnts[3][0],pgpnts[3][1],
-		pgpnts[1][0],pgpnts[1][1], pgpnts[0][0],pgpnts[0][1]];
+		var after = [pgpnts[1][0],pgpnts[1][1], pgpnts[0][0],pgpnts[0][1]
+		, pgpnts[2][0],pgpnts[2][1], pgpnts[3][0],pgpnts[3][1]
+		];
 		canvaso.draw(texture).perspective(before, after).update();
 		ctx.clearRect(0,0,canv.width,canv.height);
 
