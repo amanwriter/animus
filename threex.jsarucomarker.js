@@ -31,8 +31,8 @@ THREEx.JsArucoMarker = function(){
 	document.body.appendChild(vidCont);
 	var vidElem = document.getElementById('videofg');
 
-	console.log(vidCont);
-	console.log(vidElem);
+	// console.log(vidCont);
+	// console.log(vidElem);
 	vidElem.load();
 
 	var canvasElement = document.createElement('canvas')
@@ -147,7 +147,8 @@ THREEx.JsArucoMarker = function(){
 		cx0 = 0;
 		cy0 = 0;
 		ctx.clearRect(0,0,canv.width,canv.height);
-		ctx.beginPath();
+		ctx.strokeRect(0,0,canv.width,canv.height);
+		// ctx.beginPath();
 		pgpnts = []
 		for (var i = 0;i<4;i++){
 			cx = corners[i].x + (canvasElement.width / 2);
@@ -155,12 +156,12 @@ THREEx.JsArucoMarker = function(){
 			cx = cx * x_scale_f;
 			cy = cy * y_scale_f;
 			pgpnts.push([cx,cy]);
-			if (i==0){ctx.moveTo(cx,cy);cx0 = cx;cy0 = cy;}
-			else{ctx.lineTo(cx,cy);}
+			// if (i==0){ctx.moveTo(cx,cy);cx0 = cx;cy0 = cy;}
+			// else{ctx.lineTo(cx,cy);}
 		}
-		ctx.lineTo(cx0, cy0);
-		ctx.stroke();
-		ctx.closePath();
+		// ctx.lineTo(cx0, cy0);
+		// ctx.stroke();
+		// ctx.closePath();
 		if (pgid < 0){pgid = pg_no;}
 		if (pgid>-1){
 			taps.push(pgid)
@@ -174,19 +175,40 @@ THREEx.JsArucoMarker = function(){
 			px = Math.round(px);
 			py = Math.round(py);
 			taps.push([px+rx/2,py+rx/2]);
-			// ctx.fillRect(px,py,rx,rx);
+
+			ctx.fillRect(Math.round((canv.width*this.knowledge[pgid][i].coordinates[0])-rx/2),
+				Math.round((canv.height*(1-this.knowledge[pgid][i].coordinates[1]))-rx/2),
+				rx,rx);
 			// console.log([px,py,rx]);
 
 		}
 		if (pgid==1){
-			vx = pgpnts[1][0] + (pgpnts[0][0]-pgpnts[1][0])*this.knowledge[pgid][0].viewbox[0][0]
-			vy = pgpnts[1][1] + (pgpnts[2][1]-pgpnts[1][1])*this.knowledge[pgid][0].viewbox[0][1]
-			vx1 = pgpnts[1][0] + (pgpnts[0][0]-pgpnts[1][0])*this.knowledge[pgid][0].viewbox[1][0]
-			vy1 = pgpnts[1][1] + (pgpnts[2][1]-pgpnts[1][1])*this.knowledge[pgid][0].viewbox[2][1]
-			ctx.drawImage(vidElem, vx, vy, Math.round(vx1-vx), Math.round(vy1-vy));
+			// vx = pgpnts[1][0] + (pgpnts[0][0]-pgpnts[1][0])*this.knowledge[pgid][0].viewbox[0][0]
+			// vy = pgpnts[1][1] + (pgpnts[2][1]-pgpnts[1][1])*this.knowledge[pgid][0].viewbox[0][1]
+			// vx1 = pgpnts[1][0] + (pgpnts[0][0]-pgpnts[1][0])*this.knowledge[pgid][0].viewbox[1][0]
+			// vy1 = pgpnts[1][1] + (pgpnts[2][1]-pgpnts[1][1])*this.knowledge[pgid][0].viewbox[2][1]
+			// ctx.drawImage(vidElem, vx, vy, Math.round(vx1-vx), Math.round(vy1-vy));
+			ctx.drawImage(vidElem,
+				Math.round(canv.width*this.knowledge[pgid][0].viewbox[0][0]),
+				Math.round(canv.height*(1-this.knowledge[pgid][0].viewbox[0][1])),
+				Math.round(canv.width*(this.knowledge[pgid][0].viewbox[1][0]-this.knowledge[pgid][0].viewbox[0][0])),
+				Math.round(canv.height*(this.knowledge[pgid][0].viewbox[0][1]-this.knowledge[pgid][0].viewbox[2][1])));
+
 		}
 
 }
+		ctx.fillRect(100,0,100,100);
+		// PERSPECTIVE TRANSFORM CANV
+		var canvaso = document.getElementById('canvaso');
+		var texture = canvaso.texture(canv);
+		var before = [0,0, canv.width,0, 0,canv.height, canv.width,canv.height];
+		// var after = [pgpnts[3][0],pgpnts[3][1], pgpnts[2][0],pgpnts[2][1],
+		// pgpnts[0][0],pgpnts[0][1], pgpnts[1][0],pgpnts[1][1]];
+		var after = [pgpnts[2][0],pgpnts[2][1], pgpnts[3][0],pgpnts[3][1],
+		pgpnts[1][0],pgpnts[1][1], pgpnts[0][0],pgpnts[0][1]];
+		canvaso.draw(texture).perspective(before, after).update();
+		ctx.clearRect(0,0,canv.width,canv.height);
+
 		// ctx.drawImage(vidElem, 0, 0, 200,100);
 		// console.log(corners);
 		// for (var i = 0; i < marker.corners.length; ++ i){

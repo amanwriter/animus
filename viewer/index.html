@@ -20,11 +20,24 @@
 <script src='../threex.webcamgrabbing.js'></script>
 <script src='../threex.jsarucomarker.js'></script>
 
+<script src="../glfx.js"></script>
+
+
 <body style='margin: 0px; overflow: hidden;'>
 
 <canvas style="position:absolute;left:0;top:0;z-index:1000;" id="overlay"></canvas>
 
 <script>
+
+// Create Canvaso
+	canvaso = fx.canvas();
+    canvaso.id = 'canvaso';
+    canvaso.style.position = 'absolute';
+    canvaso.style.left = 0;
+    canvaso.style.top = 0;
+    canvaso.style.zIndex = 999;
+    document.body.appendChild(canvaso);
+
 	pg_no = 0
 	;(function(){
 		// TODO backport those 2 in Detector.js
@@ -82,6 +95,8 @@
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.getElementById("overlay").width=window.innerWidth;
 	document.getElementById("overlay").height=window.innerHeight;
+	document.getElementById("canvaso").width=window.innerWidth;
+	document.getElementById("canvaso").height=window.innerHeight;
 
 	document.body.appendChild( renderer.domElement );
 
@@ -224,6 +239,10 @@ var clock = new THREE.Clock();
 		document.getElementById("overlay").width=window.innerWidth;
 		document.getElementById("overlay").height=window.innerHeight;
 		document.getElementById("overlay").style.zIndex = "1000";
+		document.getElementById("canvaso").width=window.innerWidth;
+		document.getElementById("canvaso").height=window.innerHeight;
+		document.getElementById("canvaso").style.zIndex = "1001";
+
 		renderer.setSize( window.innerWidth, window.innerHeight )
 		camera.aspect	= window.innerWidth / window.innerHeight
 		camera.updateProjectionMatrix()
