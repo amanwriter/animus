@@ -1,63 +1,105 @@
 <html>
+<head>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+</head>
+
 <style>
   .marker {
     border: none;
     height: 100px;
     width: 100px;
   }
-
 </style>
 <body>
 <center>
 <div id="parent" style="position:relative;width:100vh;height:100vh;">
-      <iframe class='marker' src='marker/builder/iframe.html#265' style="position:absolute;left:0;top:5"></iframe>
-      <iframe id="spe" class='marker' src='marker/builder/iframe.html#123' style="position:absolute;right:0;top:5"></iframe>
-      <iframe class='marker' src='marker/builder/iframe.html#10' style="position:absolute;right:0;bottom:5"></iframe>
-      <iframe class='marker' src='marker/builder/iframe.html#401' style="position:absolute;left:0;bottom:5"></iframe>
-      <button style="position:absolute;top:50%;left:0" id="pp">Prev Page</button>
-      <button style="position:absolute;top:50%;right:0" id="np">Next Page</button>
-      <img id="imgt" style="position:absolute;left:100px;top:15px;" src="pages/atoms.png"></img>
+      <iframe id="mark1" class='marker' style="position:absolute;left:0;top:5"></iframe>
+      <iframe id="mark2" class='marker' style="position:absolute;right:0;top:5"></iframe>
+      <iframe id="mark3" class='marker' style="position:absolute;right:0;bottom:5"></iframe>
+      <iframe id="mark4" class='marker' style="position:absolute;left:0;bottom:5"></iframe>
+      <img id="imgt" style="position:absolute;left:100px;top:15px;"></img>
+      <button class='btn btn-sm' style="position:absolute;top:50%;left:0" id="pp">Prev Page</button>
+      <button class='btn btn-sm' style="position:absolute;top:50%;right:0" id="np">Next Page</button>
+
 </div>
 </center>
+
+
+
 </body>
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script>
-document.getElementById("imgt").width=document.getElementById("parent").offsetWidth-200;
-document.getElementById("imgt").height=document.getElementById("parent").offsetHeight-30;
+var horsemen = [];
+var page_file_name = "";
+var page_id = -1;
+var next = 1;
+var prev = 1;
+
+// document.getElementById("imgt").width=document.getElementById("parent").offsetWidth-200;
+// document.getElementById("imgt").height=document.getElementById("parent").offsetHeight-30;
+
+
+$('#imgt').attr('width', $('#parent').width()-200);
+$('#imgt').attr('height', $('#parent').height()-30);
 
 ino = window.location.href.split('#')[1];
-console.log(ino);
 if (ino===undefined){
-ino = 0;
-console.log(ino);
+ino = 1;
 }
-images = ["atoms.png", "dandi.png", "hybridization.png", "rivers.png"];
-ino1 = parseInt(ino);
-document.getElementById("imgt").src = "pages/" + images[ino1];
-document.getElementById("spe").src = "marker/builder/iframe.html#"+(123+ino1)
 
 $('#pp').click(function(e){
-window.location.href = window.location.href.split('#')[0] + '#' + ((((ino1-1)%4)+4)%4);
+if (prev!==undefined){
+window.location.href = window.location.href.split('#')[0] + '#' + next;
 window.location.reload();
+}
 });
-
 $('#np').click(function(e){
-window.location.href = window.location.href.split('#')[0] + '#' + ((((ino1+1)%4)+4)%4);
+  if (next!==undefined){
+window.location.href = window.location.href.split('#')[0] + '#' + prev;
 window.location.reload();
+}
 });
 
-$('#imgt').click(function(e)
-{
-    var offset_t = $(this).offset().top - $(window).scrollTop();
-    var offset_l = $(this).offset().left - $(window).scrollLeft();
-
-    var left = Math.round( (e.clientX - offset_l) );
-    var top = Math.round( (e.clientY - offset_t) );
-
-    alert("X: " + (left/$('#imgt').width()) + " Y: " + (1 - (top/$('#imgt').height())));
-
+function load_page(){
+$.ajax({
+  url: "/get_page",
+  type: "GET",
+  data: {
+    page_id: ino,
+  },
+  success: function(response) {
+    var page_details = JSON.parse(response);
+    next = page_details['next'];
+    prev = page_details['prev'];
+    if (next===undefined){$("#np").addClass('disabled');}
+    if (prev===undefined){$("#pp").addClass('disabled');}
+    horsemen = page_details['page_aruco_ids'].split(',');
+    init_markers();
+    $('#imgt').attr('src', '/backend/'+page_details['page_image_src']);
+  },
+  error: function(xhr) {
+  }
 });
 
+}
+
+$(document).ready(function() {
+    load_page();
+});
+
+function init_markers(){
+
+for (var i=1;i<5;i++){
+$('#mark'+i).attr('src', '../marker/builder/iframe.html#'+horsemen[i-1]);
+}
+
+}
+
+// init_markers();
 
 </script>
 </html>
