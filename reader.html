@@ -20,7 +20,7 @@
 </style>
 <body>
 <center>
-<div id="parent" style="position:relative;width:100vh;height:100vh;">
+<div id="parent" style="position:relative;width:90vh;height:90vh;top:5vh;">
       <iframe id="mark1" class='marker' style="position:absolute;left:0;top:5"></iframe>
       <iframe id="mark2" class='marker' style="position:absolute;right:0;top:5"></iframe>
       <iframe id="mark3" class='marker' style="position:absolute;right:0;bottom:5"></iframe>
@@ -32,8 +32,6 @@
 </div>
 </center>
 
-
-
 </body>
 <script>
 var horsemen = [];
@@ -42,53 +40,52 @@ var page_id = -1;
 var next = 1;
 var prev = 1;
 
-// document.getElementById("imgt").width=document.getElementById("parent").offsetWidth-200;
-// document.getElementById("imgt").height=document.getElementById("parent").offsetHeight-30;
-
-
-$('#imgt').attr('width', $('#parent').width()-200);
-$('#imgt').attr('height', $('#parent').height()-30);
+$('#imgt').attr('width', $('#parent').width() - 200);
+$('#imgt').attr('height', $('#parent').height() - 30);
 
 ino = window.location.href.split('#')[1];
-if (ino===undefined){
-ino = 1;
+if (ino === undefined) {
+    ino = 1;
 }
 
-$('#pp').click(function(e){
-if (prev!==null){
-window.location.href = window.location.href.split('#')[0] + '#' + prev;
-window.location.reload();
-}
+$('#pp').click(function(e) {
+    if (prev !== null) {
+        window.location.href = window.location.href.split('#')[0] + '#' + prev;
+        window.location.reload();
+    }
 });
-$('#np').click(function(e){
-  if (next!==null){
-window.location.href = window.location.href.split('#')[0] + '#' + next;
-window.location.reload();
-}
+$('#np').click(function(e) {
+    if (next !== null) {
+        window.location.href = window.location.href.split('#')[0] + '#' + next;
+        window.location.reload();
+    }
 });
 
-function load_page(){
-$.ajax({
-  url: "/get_page",
-  type: "GET",
-  data: {
-    page_id: ino,
-  },
-  success: function(response) {
-    var page_details = JSON.parse(response);
-    next = page_details['next_page'];
-    prev = page_details['prev_page'];
-    console.log(page_details);
-    console.log(next);
-    if (next===null){$("#np").addClass('disabled');}
-    if (prev===null){$("#pp").addClass('disabled');}
-    horsemen = page_details['page_aruco_ids'].split(',');
-    init_markers();
-    $('#imgt').attr('src', '/backend/'+page_details['page_image_src']);
-  },
-  error: function(xhr) {
-  }
-});
+function load_page() {
+    $.ajax({
+        url: "/get_page",
+        type: "GET",
+        data: {
+            page_id: ino,
+        },
+        success: function(response) {
+            var page_details = JSON.parse(response);
+            next = page_details['next_page'];
+            prev = page_details['prev_page'];
+            console.log(page_details);
+            console.log(next);
+            if (next === null) {
+                $("#np").addClass('disabled');
+            }
+            if (prev === null) {
+                $("#pp").addClass('disabled');
+            }
+            horsemen = page_details['page_aruco_ids'].split(',');
+            init_markers();
+            $('#imgt').attr('src', '/backend/' + page_details['page_image_src']);
+        },
+        error: function(xhr) {}
+    });
 
 }
 
@@ -96,11 +93,11 @@ $(document).ready(function() {
     load_page();
 });
 
-function init_markers(){
+function init_markers() {
 
-for (var i=1;i<5;i++){
-$('#mark'+i).attr('src', '../marker/builder/iframe.html#'+horsemen[i-1]);
-}
+    for (var i = 1; i < 5; i++) {
+        $('#mark' + i).attr('src', '../marker/builder/iframe.html#' + horsemen[i - 1]);
+    }
 
 }
 

@@ -39,11 +39,14 @@ This page just renders the page image surrounded by AR markers. This is done so 
 
 ### Viewer
 
-- The viewer captures image from the device camera and uses the awesome js-Aruco markers library (https://github.com/diogok/js-aruco-markers) to detect the AR markers in the video stream. This information is used to send a request to the server to fetch all Triggers for the page along with their location. These triggers were created using the Admin panel as discussed above. 
+- The viewer captures image from the device camera and uses the awesome js-Aruco markers library (https://github.com/diogok/js-aruco-markers) to detect the AR markers in the video stream. This information is used to send a request to the server to fetch all Triggers for the page along with their location. These triggers were created using the Admin panel as discussed above.
   > Instead of choosing one AR marker and transforming everything based on that, 4 corners were chosen to make the calculations simpler and also encode more page numbers by using the combination of their IDs.
 
 - Before rendering the Triggers on the screen, we also need to perform a Perspective Transformation to go from the co-ordinates of the flat image (where the admin added the triggers) to that of the skewed image which the user is seeing. This was done using the amazing glfx library (http://evanw.github.io/glfx.js/), and the individual transform for the trigger points was done by using perspective-transform library (https://github.com/jlouthan/perspective-transform).
 
 - The Viewer also has Bootstrap modals to show additional information when a user interacts with a trigger point.
 
-## Demo videos
+## Demo
+
+Demo description: https://github.com/amanwriter/animus/blob/master/DEMO.md
+Demo video: https://www.youtube.com/watch?v=vfg5smFCo4U

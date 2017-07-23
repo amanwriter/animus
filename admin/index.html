@@ -126,90 +126,154 @@ var canvas = document.getElementById('can');
 var ctx = canvas.getContext('2d');
 var horsemen = [];
 var dragging = 0;
-var x1=0,x2=0,y1=0,y2=0;
+var x1 = 0,
+    x2 = 0,
+    y1 = 0,
+    y2 = 0;
 var page_created = false;
 var page_file_name = "";
 var page_id = -1;
 
-document.getElementById("imgt").width=document.getElementById("parent").offsetWidth-200;
-document.getElementById("imgt").height=document.getElementById("parent").offsetHeight-30;
+document.getElementById("imgt").width = document.getElementById("parent").offsetWidth - 200;
+document.getElementById("imgt").height = document.getElementById("parent").offsetHeight - 30;
 
-canvas.width = document.getElementById("parent").offsetWidth-200;
-canvas.height = document.getElementById("parent").offsetHeight-30;
+canvas.width = document.getElementById("parent").offsetWidth - 200;
+canvas.height = document.getElementById("parent").offsetHeight - 30;
 
 
 $('[id^=step]').hide()
-$('#step'+1).show();
+$('#step' + 1).show();
 
 
-function start(e){
-// setup_canvas();
-e.preventDefault();
-if (page_created){dragging=1;}
-x1 = e.clientX - canvas.getBoundingClientRect().left;
-y1 = e.clientY - canvas.getBoundingClientRect().top;
+function start(e) {
+    // setup_canvas();
+    e.preventDefault();
+    if (page_created) {
+        dragging = 1;
+    }
+    x1 = e.clientX - canvas.getBoundingClientRect().left;
+    y1 = e.clientY - canvas.getBoundingClientRect().top;
 }
 
-function move(e){
-e.preventDefault();
+function move(e) {
+    e.preventDefault();
 
-if (dragging==1){
+    if (dragging == 1) {
 
-ctx.clearRect(0,0,can.width, can.height);
+        ctx.clearRect(0, 0, can.width, can.height);
 
 
-var x = e.clientX - canvas.getBoundingClientRect().left;
-var y = e.clientY - canvas.getBoundingClientRect().top;
-ctx.strokeStyle = 'red';
-ctx.strokeRect(x1, y1, x-x1, y-y1);
-}
-}
-
-function end(e){
-e.preventDefault();
-dragging=0;
-var el = canvas;//document.getElementById('img');
-x2 = e.clientX - canvas.getBoundingClientRect().left;
-y2 = e.clientY - canvas.getBoundingClientRect().top;
-
-// Show Trigger Element with relevant type
-if (page_created){
-
-if (x2==x1){
-  // Trigger is point
-console.log("Hello!");
-$('#trigger_type').find('option')
-    .remove()
-    .end()
-    .append('<option value="info">Info</option>')
-    .append('<option value="location">Location</option>');
-}
-else{
-  // Trigger is a box
-$('#trigger_type').find('option')
-    .remove()
-    .end()
-    .append('<option value="video">Video</option>')
-    .append('<option value="3dmodel">3D model</option>');
-
-}
-$('#trigger_form').modal('toggle');
+        var x = e.clientX - canvas.getBoundingClientRect().left;
+        var y = e.clientY - canvas.getBoundingClientRect().top;
+        ctx.strokeStyle = 'red';
+        ctx.strokeRect(x1, y1, x - x1, y - y1);
+    }
 }
 
+function end(e) {
+    e.preventDefault();
+    dragging = 0;
+    var el = canvas; //document.getElementById('img');
+    x2 = e.clientX - canvas.getBoundingClientRect().left;
+    y2 = e.clientY - canvas.getBoundingClientRect().top;
 
-  $('[id^=step]').hide();
-  $('#step'+3).show();
+    // Show Trigger Element with relevant type
+    if (page_created) {
+
+        if (x2 == x1) {
+            // Trigger is point
+            console.log("Hello!");
+            $('#trigger_type').find('option')
+                .remove()
+                .end()
+                .append('<option value="info">Info</option>')
+                .append('<option value="location">Location</option>');
+        } else {
+            // Trigger is a box
+            $('#trigger_type').find('option')
+                .remove()
+                .end()
+                .append('<option value="video">Video</option>')
+                .append('<option value="3dmodel">3D model</option>');
+
+        }
+        $('#trigger_form').modal('toggle');
+    }
+
+
+    $('[id^=step]').hide();
+    $('#step' + 3).show();
 
 
 }
 
-function add_page(input){
-  input.preventDefault();
+function add_page(input) {
+    input.preventDefault();
 
     $.ajax({
-        url:'../upload_resource',
-        type:'POST',
-        data:new FormData($('#page_upload')[0]),
+        url: '../upload_resource',
+        type: 'POST',
+        data: new FormData($('#page_upload')[0]),
+        cache: false,
+        contentType: false,
+        processData: false,
+
+        // Custom XMLHttpRequest
+        xhr: function() {
+            var myXhr = $.ajaxSettings.xhr();
+            if (myXhr.upload) {
+                // For handling the progress of the upload
+                myXhr.upload.addEventListener('progress', function(e) {}, false);
+            }
+            return myXhr;
+        },
+        success: function(response) {
+            page_file_name = response;
+            var input = $('#pic')[0];
+
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    init_markers();
+                    page_created = false;
+                    $('#imgt').attr('src', e.target.result);
+                    $('#confirm_page').modal('toggle');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    });
+
+
+
+}
+
+function create_page() {
+    // Create page and obtain the page_id
+
+    $.ajax({
+        url: '../create_page',
+        type: 'POST',
+        data: JSON.stringify({
+            page_image_src: page_file_name,
+            page_aruco_ids: horsemen.join()
+        }),
+        success: function(response) {
+            page_id = response;
+        }
+    });
+
+    page_created = true;
+}
+
+function create_trigger() {
+
+    // Upload the trigger content to the backend
+    $.ajax({
+        url: '../upload_resource',
+        type: 'POST',
+        data: new FormData($('#trigger_upload')[0]),
         cache: false,
         contentType: false,
         processData: false,
@@ -220,133 +284,71 @@ function add_page(input){
             if (myXhr.upload) {
                 // For handling the progress of the upload
                 myXhr.upload.addEventListener('progress', function(e) {
-                } , false);
+                    if (e.lengthComputable) {
+                        $('progress2').attr({
+                            value: e.loaded,
+                            max: e.total,
+                        });
+                    }
+                }, false);
             }
             return myXhr;
         },
-        success:function (response) {
-                                page_file_name = response;
-    var input = $('#pic')[0];
+        success: function(response) {
+            console.log(response);
+            resource_name = response;
+            // Send the marker details to the backend
 
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
+            // Calculating the co-ordinates for trigger location
+            var lx1 = x1 / canvas.width;
+            var ly1 = 1 - y1 / canvas.height;
+            var lx2 = x2 / canvas.width;
+            var ly2 = 1 - y2 / canvas.height;
+            var cx1 = lx2;
+            var cy1 = ly2;
+            if (lx1 != lx2) {
+                cx1 = (lx1 + lx2) / 2;
+                cy1 = (ly1 + ly2) / 2;
+            }
+            console.log(page_id);
+            $.ajax({
+                url: '../create_trigger',
+                type: 'POST',
+                data: JSON.stringify({
+                    pg_id: page_id,
+                    type: $('#trigger_type')[0].value,
+                    src: resource_name,
+                    location_pnt: '(' + [cx1, cy1].join() + ')',
+                    location_box: '(' + [lx1, ly1, lx2, ly2].join() + ')'
+                }),
+                success: function(resp) {
+                    $('[id^=step]').hide();
+                    $('#step' + 4).show();
+                }
+            });
 
-            reader.onload = function (e) {
-                init_markers();
-                page_created = false;
-                $('#imgt').attr('src', e.target.result);
-                $('#confirm_page').modal('toggle');
-            };
-            reader.readAsDataURL(input.files[0]);
         }
-                            }
     });
-
-
-
-}
-
-function create_page(){
-  // Create page and obtain the page_id
-
-
-
-  $.ajax({
-    url:'../create_page',
-    type:'POST',
-    data: JSON.stringify({page_image_src: page_file_name, page_aruco_ids: horsemen.join()}),
-    success:function (response) {
-                            page_id = response;
-                        }
-});
-
-  page_created = true;
-}
-
-function create_trigger(){
-
-  // Upload the trigger content to the backend
-  $.ajax({
-      url:'../upload_resource',
-      type:'POST',
-      data:new FormData($('#trigger_upload')[0]),
-      cache: false,
-      contentType: false,
-      processData: false,
-
-      // Custom XMLHttpRequest
-      xhr: function() {
-          var myXhr = $.ajaxSettings.xhr();
-          if (myXhr.upload) {
-              // For handling the progress of the upload
-              myXhr.upload.addEventListener('progress', function(e) {
-                  if (e.lengthComputable) {
-                      $('progress2').attr({
-                          value: e.loaded,
-                          max: e.total,
-                      });
-                  }
-              } , false);
-          }
-          return myXhr;
-      },
-      success:function (response) {
-                              console.log(response);
-                              resource_name = response;
-    // Send the marker details to the backend
-
-  // Calculating the co-ordinates for trigger location
-  var lx1 = x1/canvas.width;
-  var ly1 = 1-y1/canvas.height;
-  var lx2 = x2/canvas.width;
-  var ly2 = 1-y2/canvas.height;
-  var cx1 = lx2;
-  var cy1 = ly2;
-  if (lx1!=lx2){
-    cx1 = (lx1+lx2)/2;
-    cy1 = (ly1+ly2)/2;}
-    console.log(page_id);
-  $.ajax({
-    url:'../create_trigger',
-    type:'POST',
-    data: JSON.stringify(
-      {pg_id: page_id, type: $('#trigger_type')[0].value, src: resource_name, location_pnt: '('+[cx1,cy1].join()+')', location_box: '(' +[lx1,ly1,lx2,ly2].join()+ ')'}),
-    success:function(resp){
-      $('[id^=step]').hide();
-      $('#step'+4).show();
-}
-}
-);
-
-                          }
-  });
-
-
 }
 
 
-function init_markers(){
+function init_markers() {
 
-horsemen = [];
-while (horsemen.length<4){
-  var new_horseman = Math.floor(400*Math.random());
-  if ($.inArray(new_horseman, horsemen)==-1){
-    horsemen.push(new_horseman);
-  }
-}
-horsemen.sort().reverse();
-for (var i=1;i<5;i++){
-$('#mark'+i).attr('src', '../marker/builder/iframe.html#'+horsemen[i-1]);
-}
+    horsemen = [];
+    while (horsemen.length < 4) {
+        var new_horseman = Math.floor(400 * Math.random());
+        if ($.inArray(new_horseman, horsemen) == -1) {
+            horsemen.push(new_horseman);
+        }
+    }
+    horsemen.sort().reverse();
+    for (var i = 1; i < 5; i++) {
+        $('#mark' + i).attr('src', '../marker/builder/iframe.html#' + horsemen[i - 1]);
+    }
 
-  $('[id^=step]').hide()
-  $('#step'+2).show();
-
-
+    $('[id^=step]').hide()
+    $('#step' + 2).show();
 
 }
-
-//init_markers();
-
 </script>
 </html>

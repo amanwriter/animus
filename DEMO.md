@@ -1,7 +1,8 @@
 # Animus Demo
 
 > Note: The hack is hosted on AWS and requires an HTTPS server but only has a self-signed certificate. Thus, you'll be prompted with a 'Your connection is not private' error whenever you open the pages, and you'll have to agree to proceed forward.
-> Depending on the latency, the media download/upload speeds (especially in Admin) will vary significantly and your patience is appreciated. In production, these resources would be moved to a separate dedicated faster server.
+
+> Note: Depending on the latency, the media download/upload speeds (especially in Admin) will vary significantly and your patience is appreciated. In production, these resources would be moved to a separate dedicated faster server.
 
 ## Admin Portal
 

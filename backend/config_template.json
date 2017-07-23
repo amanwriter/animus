@@ -1,0 +1,11 @@
+{
+	"HTTPS_HOST": "0.0.0.0",
+	"HTTPS_PORT": 8000,
+	"SSL_CERTIFICATE": "cert.pem",
+	"SSL_KEY": "key.pem",
+	"DB_HOST": "127.0.0.1",
+	"DB_PORT": 5432,
+	"DB_USER": "animus_user",
+	"DB_PASSWORD": "animus_pass",
+	"DB_NAME": "animus"
+}
