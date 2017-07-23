@@ -68,6 +68,8 @@ class AnimusService:
         row = yield from PostgresStore.raw_sql("""select * from pages as p, triggers as t
             where t.pg_id = p.page_id and t.is_trigger_active = 'true' and p.is_page_active = 'true' and
             (p.page_id = """+str(page_id)+""" or p.page_aruco_ids = '"""+str(page_aruco_ids)+"""')""", ())
+        if len(row)==0:
+            return Response(status=404)
         row = self.cleaner(row)
         return_val = {}
         trigger_keys = ['trigger_id','pg_id','type','src','location_pnt','location_box','is_trigger_active']
@@ -86,6 +88,7 @@ class AnimusService:
             (select max(page_id) from pages where is_page_active = 'true' and page_id < """+str(return_val['page_id'])+""") as prev,
             (select min(page_id) from pages where is_page_active = 'true' and page_id > """+str(return_val['page_id'])+""") as next
             """, ())
+        print(row)
         return_val['prev_page'] = row[0][0]
         return_val['next_page'] = row[0][1]
         return Response(status=200, body=json.dumps(return_val).encode())
@@ -103,8 +106,15 @@ app.router.add_route('GET', '/get_page', http_service.get_page)
 
 app.router.add_static('/', '../')
 
+import ssl
+# print(dir(ssl))
 
-serve = loop.create_server(app.make_handler(), '0.0.0.0', 8000)
+sslcontext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+# sslcontext.load_cert_chain('sample.crt', 'sample.key')
+sslcontext.load_cert_chain('cert.pem', keyfile='key.pem')
+# sslcontext.load_default_certs()
+
+serve = loop.create_server(app.make_handler(), '0.0.0.0', 8000, ssl=sslcontext)
 loop.run_until_complete(serve)
 
 try:

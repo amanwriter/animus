@@ -23,6 +23,7 @@
 <script src='../threex.jsarucomarker.js'></script>
 
 <script src="../glfx.js"></script>
+<script src="../perspective.js"></script>
 
 
 <body style='margin: 0px; overflow: hidden;'>
@@ -206,7 +207,34 @@ for (var i=0;i<triggers.length;i++){
 }
 
 function add_triggers(){
+for (var i=0;i<triggers.length;i++){
+//	$('#trigger'+i).remove();
+var trigger = triggers[i];
 
+if (trigger['type'] == 'video'){
+	var vidCont = document.createElement('div');
+	// vidCont.style.display = 'none';
+	// vidCont.style.opacity = 0;
+	vidCont.innerHTML = '<video id="trigger'+i+'" autoplay muted loop><source src="../backend/'+trigger['src']+'" type="video/mp4" /></video>';
+	document.getElementById('mb').appendChild(vidCont);
+	document.getElementById('trigger'+i).load();
+	// $('#trigger'+i).hide();
+}
+else if (trigger['type'] == '3dmodel'){
+	var canCont = document.createElement('div');
+	// vidCont.style.display = 'none';
+	// vidCont.style.opacity = 0;
+	canCont.innerHTML = '<iframe id="trigger'+i+'" style="width:100%;" src="../backend/'+trigger['src']+'"></iframe>';
+	document.getElementById('mb').appendChild(canCont);
+
+}
+else {
+	var imgCont = document.createElement('div');
+	imgCont.innerHTML = '<img id="trigger'+i+'" src="../backend/'+trigger['src']+'" style="width:100%;"></img>';
+	document.getElementById('mb').appendChild(imgCont);
+}
+
+}
 }
 
 $('#overlay').on('click touchstart', function (event) {
@@ -217,14 +245,42 @@ cly = event.pageY;
 if (taps.length<1){return}
 if (taps[0]<0){return}
 selected_index = -1;
+console.log(taps);
 for (var i=1;i<taps.length;i++){
+	console.log(i, (((clx-taps[i][0])*(clx-taps[i][0]) + (cly-taps[i][1])*(cly-taps[i][1]))));
 	if (((clx-taps[i][0])*(clx-taps[i][0]) + (cly-taps[i][1])*(cly-taps[i][1])) < 900){
 		selected_index = i;
 		break;
 	}
 }
+if (selected_index!=-1){
+	$('#details').modal('toggle');
+	$('[id^=trigger]').hide()
+	$('#trigger'+(selected_index-1)).show();
+}
+
 });
 
 </script>
+
+
+  <div class="modal fade" id="details" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"></h4>
+        </div>
+        <div id="mb" class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+
 
 </body>

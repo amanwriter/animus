@@ -53,13 +53,13 @@ ino = 1;
 
 $('#pp').click(function(e){
 if (prev!==undefined){
-window.location.href = window.location.href.split('#')[0] + '#' + next;
+window.location.href = window.location.href.split('#')[0] + '#' + prev;
 window.location.reload();
 }
 });
 $('#np').click(function(e){
   if (next!==undefined){
-window.location.href = window.location.href.split('#')[0] + '#' + prev;
+window.location.href = window.location.href.split('#')[0] + '#' + next;
 window.location.reload();
 }
 });
@@ -73,10 +73,12 @@ $.ajax({
   },
   success: function(response) {
     var page_details = JSON.parse(response);
-    next = page_details['next'];
-    prev = page_details['prev'];
-    if (next===undefined){$("#np").addClass('disabled');}
-    if (prev===undefined){$("#pp").addClass('disabled');}
+    next = page_details['next_page'];
+    prev = page_details['prev_page'];
+    console.log(page_details);
+    console.log(next);
+    if (next===null){$("#np").addClass('disabled');}
+    if (prev===null){$("#pp").addClass('disabled');}
     horsemen = page_details['page_aruco_ids'].split(',');
     init_markers();
     $('#imgt').attr('src', '/backend/'+page_details['page_image_src']);
