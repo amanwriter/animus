@@ -6,14 +6,14 @@ Make books come alive through Augmented Reality
 1. Clone the repository and navigate to 'backend/' folder to install the requirements for the Python server
 `pip3 install -r requirements.txt`
 2. Use OpenSSL to create a SSL certificate and key (We need to be hosted on HTTPS to access Device camera on modern browsers).
-3. Run db.sql after creating a Postgres database and update the connection credentials in api.py
-4. Run api.py (You'll be prompted for the SSL key passphrase)
-5. Navigate to https://<host>:<port>/admin/index.html to open the admin panel and create pages. Some sample images have been included in the pages directory.
+3. Run db.sql after creating a Postgres database and update the connection credentials in config.json
+4. Execute api.py after creating its config.json file (You'll be prompted for the SSL key passphrase)
+5. Navigate to https://host:port/admin/index.html to open the admin panel and create pages. Some sample images have been included in the pages directory.
 6. Add trigger after following the instructions on the admin UI (read below section for caveats)
 7. Update the Postgres tables by setting the active flag to true if you wish to publish the pages and triggers
-8. Open https://<host>:<port>/reader.html to open the reader, preferably on a large and bright screen
-9. On you smartphone device browser navigate to https://<host>:<port>/viewer/index.html to open the lens and point the camera at the window opened above to see the page showing trigger points on the selected coordinates and other AR components
-10. Without publishing the changes you can also view the results by opening https://<host>:<port>/viewer/index.html#debug on your smartphone browser and point it at the admin panel
+8. Open https://host:port/reader.html to open the reader, preferably on a large and bright screen
+9. On you smartphone device browser navigate to https://host:port/viewer/index.html to open the lens and point the camera at the window opened above to see the page showing trigger points on the selected coordinates and other AR components
+10. Without publishing the changes you can also view the results by opening https://host:port/viewer/index.html#debug on your smartphone browser and point it at the admin panel
 
 > Note: In case you face performance issues on your low-end smartphone, you can also reverse the reader and viewer, by opening the Reader page in landscape mode on your smartphone and the Viewer page on your laptop. Display your smartphone screen to the laptop's webcam.
 
