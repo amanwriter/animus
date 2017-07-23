@@ -58,8 +58,8 @@ Drag to add 'video' or '3D model' triggers.
 <div id="step4">
 <h6>Testing new page</h6>
 Your input page and triggers have been stored<br>
-They will me made live after evaluation<br>
-You can test them by adding #debug in viewer URL</div>
+They will be made live after evaluation<br>
+You can test them now by adding #debug in Viewer URL</div>
 <hr>
 
 <!-- <input type="submit" value="Upload page"/>
@@ -225,11 +225,7 @@ function add_page(input){
             return myXhr;
         },
         success:function (response) {
-                                console.log(response);
                                 page_file_name = response;
-                            }
-    });
-
     var input = $('#pic')[0];
 
         if (input.files && input.files[0]) {
@@ -243,6 +239,10 @@ function add_page(input){
             };
             reader.readAsDataURL(input.files[0]);
         }
+                            }
+    });
+
+
 
 }
 
@@ -310,14 +310,16 @@ function create_trigger(){
     url:'../create_trigger',
     type:'POST',
     data: JSON.stringify(
-      {pg_id: page_id, type: $('#trigger_type')[0].value, src: resource_name, location_pnt: '('+[cx1,cy1].join()+')', location_box: '(' +[lx1,ly1,lx2,ly2].join()+ ')'})
-});
+      {pg_id: page_id, type: $('#trigger_type')[0].value, src: resource_name, location_pnt: '('+[cx1,cy1].join()+')', location_box: '(' +[lx1,ly1,lx2,ly2].join()+ ')'}),
+    success:function(resp){
+      $('[id^=step]').hide();
+      $('#step'+4).show();
+}
+}
+);
 
                           }
   });
-
-  $('[id^=step]').hide()
-  $('#step'+4).show();
 
 
 }
