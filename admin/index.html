@@ -1,5 +1,8 @@
 <html>
 <head>
+<title>Animus - Admin</title>
+<link rel="icon" href="../favicon.ico" type="image/x-icon" />
+
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 
@@ -27,22 +30,41 @@
 </div>
 </center>
 <div style="position:absolute;top:15;left:15;">
-<h1>Pages</h1>
-<div class="form-group">
+<!-- <h1>Pages</h1>
+ --><div class="form-group" id="step1">
 
 <form id="page_upload" enctype="multipart/form-data">
-  <label for="pic">Upload page image</label><br>
-  <input type="file" accept="image/*" id="pic" name="pic" /><br>
-  <progress id="progress"></progress><br>
-    <button class="btn btn-primary" onclick="add_page(event);">Edit page</button>
+  <h6>Upload page image</h6>
+  <input type="file" accept="image/*" id="pic" name="pic" /><br><br>
+    <button class="btn" onclick="add_page(event);">Add page</button>
+</form>
+</div>
+<hr>
+<div id="step2">
+<h6>Select trigger location</h6>
+Click on the point to add 'location' or 'info' triggers.<br>
+Drag to add 'video' or '3D model' triggers.
+</div>
+<hr>
+<div id="step3">
+<h6>Upload trigger media</h6>
+<ul>
+  <li>PNG files for location and info</li>
+  <li>MP4 files for videos</li>
+  <li>HTML file for 3D Models</li>
+</ul>
+</div>
+<hr>
+<div id="step4">
+<h6>Testing new page</h6>
+Your input page and triggers have been stored<br>
+They will me made live after evaluation<br>
+You can test them by adding #debug in viewer URL</div>
+<hr>
 
 <!-- <input type="submit" value="Upload page"/>
- --></form>
-  <br><h4>Or</h4><br>
-  <button class="btn btn-primary" onclick="$('#trigger_form').modal('toggle')">Edit page</button>
+ -->
 
-
-</div>
 
   <!--ADD TRIGGER-->
   <div class="modal fade" id="trigger_form" role="dialog">
@@ -116,6 +138,10 @@ canvas.width = document.getElementById("parent").offsetWidth-200;
 canvas.height = document.getElementById("parent").offsetHeight-30;
 
 
+$('[id^=step]').hide()
+$('#step'+1).show();
+
+
 function start(e){
 // setup_canvas();
 e.preventDefault();
@@ -170,6 +196,11 @@ $('#trigger_type').find('option')
 $('#trigger_form').modal('toggle');
 }
 
+
+  $('[id^=step]').hide();
+  $('#step'+3).show();
+
+
 }
 
 function add_page(input){
@@ -189,12 +220,6 @@ function add_page(input){
             if (myXhr.upload) {
                 // For handling the progress of the upload
                 myXhr.upload.addEventListener('progress', function(e) {
-                    if (e.lengthComputable) {
-                        $('progress').attr({
-                            value: e.loaded,
-                            max: e.total,
-                        });
-                    }
                 } , false);
             }
             return myXhr;
@@ -291,6 +316,10 @@ function create_trigger(){
                           }
   });
 
+  $('[id^=step]').hide()
+  $('#step'+4).show();
+
+
 }
 
 
@@ -305,12 +334,17 @@ while (horsemen.length<4){
 }
 horsemen.sort().reverse();
 for (var i=1;i<5;i++){
-$('#mark'+i).attr('src', '../marker/builder/iframe.html#'+horsemen[i]);
+$('#mark'+i).attr('src', '../marker/builder/iframe.html#'+horsemen[i-1]);
 }
+
+  $('[id^=step]').hide()
+  $('#step'+2).show();
+
+
 
 }
 
-init_markers();
+//init_markers();
 
 </script>
 </html>

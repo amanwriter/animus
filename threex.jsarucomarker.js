@@ -99,6 +99,9 @@ THREEx.JsArucoMarker = function(){
 			var coordinates = trigger['location_pnt'].replace('(','').replace(')','').split(',')
 			coordinates = [parseFloat(coordinates[0]), (parseFloat(coordinates[1]))]
 			rx = 80;
+			if (trigger['type']=='3dmodel'){rx=10;}
+			if (trigger['type']=='location'){rx=30;}
+			if (trigger['type']=='info'){rx=40;}
 			dstPnt = perspT.transform(canv.width*coordinates[0],canv.height*(1-coordinates[1]));
 			taps.push([Math.round(dstPnt[0]),Math.round(dstPnt[1])]);
 			if ((trigger['type'] == 'video')||(trigger['type'] == '3dmodel')){
@@ -107,7 +110,9 @@ THREEx.JsArucoMarker = function(){
 			box = [parseFloat(box[0]), parseFloat(box[1]),
 			parseFloat(box[2]), parseFloat(box[3])];
 			var drawing_element = $('#trigger'+i)[0];
-			console.log(drawing_element.contentDocument);
+			if (trigger['type']=='video'){
+				drawing_element = $('#vid_trigger'+i)[0];
+			}
 			if (trigger['type']=='3dmodel'){
 				drawing_element = drawing_element.contentDocument.getElementById('3dmodel');}
 			ctx.drawImage(drawing_element,
@@ -123,35 +128,12 @@ THREEx.JsArucoMarker = function(){
 				Math.round((canv.height*(1-coordinates[1]))-(rx/2)-(y_offset)),
 				rx,rx);
 
-			// ctx.fillRect(Math.round((canv.width*this.knowledge[pgid][i].coordinates[0])-rx/2),
-			// 	Math.round((canv.height*(1-this.knowledge[pgid][i].coordinates[1]))-rx/2),
-			// 	rx,rx);
-			// console.log([px,py,rx]);
-
 		}
-		// if (pgid==1){
-			// ctx.drawImage(vidElem,
-			// 	Math.round(canv.width*this.knowledge[pgid][0].viewbox[0][0]),
-			// 	Math.round(canv.height*(1-this.knowledge[pgid][0].viewbox[0][1])),
-			// 	Math.round(canv.width*(this.knowledge[pgid][0].viewbox[1][0]-this.knowledge[pgid][0].viewbox[0][0])),
-			// 	Math.round(canv.height*(this.knowledge[pgid][0].viewbox[0][1]-this.knowledge[pgid][0].viewbox[2][1])));
-
-		// }
 
 }
 		// PERSPECTIVE TRANSFORM
-
-		// iframe-canvas test
-		// var ifr_can = $('#trigger_w')[0].contentDocument.getElementById('3dmodel');
-		// ctx.drawImage(ifr_can, 100, 100);
-
 		var canvaso = document.getElementById('canvaso');
 		var texture = canvaso.texture(canv);
-		// var before = [-10,0, canv.width+10,0, canv.width+10,canv.height, -10,canv.height];
-		// var after = [
-		// pgpnts[0][0],pgpnts[0][1], pgpnts[1][0],pgpnts[1][1],
-		// pgpnts[2][0],pgpnts[2][1], pgpnts[3][0],pgpnts[3][1]
-		// ];
 		canvaso.draw(texture).perspective(before, after).update();
 		ctx.clearRect(0,0,canv.width,canv.height);
 		return pgid

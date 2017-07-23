@@ -1,5 +1,8 @@
 <html>
 <head>
+<title>Animus - Reader</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon" />
+
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 
@@ -52,13 +55,13 @@ ino = 1;
 }
 
 $('#pp').click(function(e){
-if (prev!==undefined){
+if (prev!==null){
 window.location.href = window.location.href.split('#')[0] + '#' + prev;
 window.location.reload();
 }
 });
 $('#np').click(function(e){
-  if (next!==undefined){
+  if (next!==null){
 window.location.href = window.location.href.split('#')[0] + '#' + next;
 window.location.reload();
 }
@@ -100,8 +103,6 @@ $('#mark'+i).attr('src', '../marker/builder/iframe.html#'+horsemen[i-1]);
 }
 
 }
-
-// init_markers();
 
 </script>
 </html>

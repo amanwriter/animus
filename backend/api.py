@@ -64,10 +64,14 @@ class AnimusService:
     def get_page(self, request):
         page_id = request.GET.get('page_id', '-1')
         page_aruco_ids = request.GET.get('page_aruco_ids', '')
-        print(page_aruco_ids)
-        row = yield from PostgresStore.raw_sql("""select * from pages as p, triggers as t
+        debug = request.GET.get('debug', '')
+        raw_query = """select * from pages as p, triggers as t
             where t.pg_id = p.page_id and t.is_trigger_active = 'true' and p.is_page_active = 'true' and
-            (p.page_id = """+str(page_id)+""" or p.page_aruco_ids = '"""+str(page_aruco_ids)+"""')""", ())
+            (p.page_id = %s or p.page_aruco_ids = %s)"""
+        if debug:
+            raw_query = raw_query.replace("and t.is_trigger_active = 'true' and p.is_page_active = 'true'", '')
+        print(raw_query, page_id, debug, page_aruco_ids)
+        row = yield from PostgresStore.raw_sql(raw_query, (page_id, page_aruco_ids))
         if len(row)==0:
             return Response(status=404)
         row = self.cleaner(row)
@@ -107,12 +111,9 @@ app.router.add_route('GET', '/get_page', http_service.get_page)
 app.router.add_static('/', '../')
 
 import ssl
-# print(dir(ssl))
 
 sslcontext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-# sslcontext.load_cert_chain('sample.crt', 'sample.key')
 sslcontext.load_cert_chain('cert.pem', keyfile='key.pem')
-# sslcontext.load_default_certs()
 
 serve = loop.create_server(app.make_handler(), '0.0.0.0', 8000, ssl=sslcontext)
 loop.run_until_complete(serve)

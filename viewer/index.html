@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <head>
+<title>Animus - Viewer</title>
+<link rel="icon" href="../favicon.ico" type="image/x-icon" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
@@ -51,6 +54,15 @@
 	triggers = [];
 	pending_request = false;
 	horsemen = [];
+	hollowman = document.createElement('div');
+	hollowman.style.opacity = 0;
+	document.body.appendChild(hollowman);
+	debug_mode = '';
+	cleared = false;
+
+
+	if (window.location.hash == '#debug'){debug_mode='debug';console.log(debug_mode);}
+
 
 	(function(){
 		var hasGetUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia) ? true : false
@@ -84,8 +96,7 @@
 	renderStats.domElement.style.bottom = '0px'
 	renderStats.domElement.style.left = '0px'
 	var renderer	= new THREE.WebGLRenderer({
-		antialias	: true,
-		alpha		: true,
+		alpha		: true
 	});
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.getElementById("overlay").width=window.innerWidth;
@@ -158,7 +169,7 @@ var clock = new THREE.Clock();
 
 		var domElement	= videoGrabbing.domElement;
 		detectMarkersStats.begin();
-		var markers	= jsArucoMarker.detectMarkers(domElement)
+		var markers	= jsArucoMarker.detectMarkers(domElement);
 		detectMarkersStats.end();
 		// Add Markers to the Horsemen, and get a page if there is a change and we have sufficient markers and there are no pending requests
 		if (!(pending_request)){
@@ -172,6 +183,7 @@ $.ajax({
   type: "GET",
   data: {
     page_aruco_ids: horsemen.join(),
+    debug: debug_mode
   },
   success: function(response) {
     var page_details = JSON.parse(response);
@@ -192,9 +204,15 @@ $.ajax({
 	}
 
 		taps = [];
-		if (horsemen.length==4){
-		jsArucoMarker.markersToObject3D(markers, horsemen, corners, taps, pg_no);}
+		if ((pg_no>0)&&(markers.length>0)){
+			console.log(markers.length);
+		jsArucoMarker.markersToObject3D(markers, horsemen, corners, taps, pg_no);
+		cleared = false;}
 		else{
+			if (!(cleared)){
+			var texture = canvaso.texture(document.getElementById("overlay"));
+			canvaso.draw(texture).update();
+			cleared = true;}
 		//pg_no = jsArucoMarker.markersToObject3D(markers, horsemen, corners, taps, pg_no);}
 		}
 	})
@@ -204,6 +222,8 @@ function delete_triggers(){
 for (var i=0;i<triggers.length;i++){
 	$('#trigger'+i).remove();
 }
+hollowman.innerHTML = '';
+
 }
 
 function add_triggers(){
@@ -215,9 +235,11 @@ if (trigger['type'] == 'video'){
 	var vidCont = document.createElement('div');
 	// vidCont.style.display = 'none';
 	// vidCont.style.opacity = 0;
-	vidCont.innerHTML = '<video id="trigger'+i+'" autoplay muted loop><source src="../backend/'+trigger['src']+'" type="video/mp4" /></video>';
+	vidCont.innerHTML = '<video id="trigger'+i+'" controls><source src="../backend/'+trigger['src']+'" type="video/mp4" /></video>';
+	hollowman.innerHTML += '<video id="vid_trigger'+i+'" autoplay muted loop><source src="../backend/'+trigger['src']+'" type="video/mp4" /></video>';
 	document.getElementById('mb').appendChild(vidCont);
 	document.getElementById('trigger'+i).load();
+	document.getElementById('vid_trigger'+i).load();
 	// $('#trigger'+i).hide();
 }
 else if (trigger['type'] == '3dmodel'){
@@ -255,7 +277,7 @@ for (var i=1;i<taps.length;i++){
 }
 if (selected_index!=-1){
 	$('#details').modal('toggle');
-	$('[id^=trigger]').hide()
+	$('[id^=trigger]').hide();
 	$('#trigger'+(selected_index-1)).show();
 }
 

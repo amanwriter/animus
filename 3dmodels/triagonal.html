@@ -10,7 +10,7 @@ var scene = new THREE.Scene();
 var aspectRatio = window.innerWidth / window.innerHeight;
 // var camera = new THREE.PerspectiveCamera(75, 3/2, 1, 10000);
 var camera  = new THREE.PerspectiveCamera(40, 1.5, 0.01, 1000);
-camera.position.z = 1.5;
+camera.position.z = 0.5;
 scene.add(camera);
 
 var shape = new THREE.SphereGeometry(0.1, 0.2, 0.2);
@@ -22,56 +22,51 @@ var moleculeShape1 = new THREE.SphereGeometry(0.05, 0.2, 0.2);
 var y_axis = new THREE.Vector3(0.5,0.5,0);
 
 
-var tetrahedral = new THREE.Mesh(shape, cover);
-tetrahedral.position.set(0,0,-2);
-var t_molecule1 = new THREE.Mesh(moleculeShape1, cover3);
-tetrahedral.add(t_molecule1);
-t_molecule1.position.set(0.4,0.4,0.4);
+var bipyramidal = new THREE.Mesh(shape, cover);
+bipyramidal.position.set(0,0,-2);
+var p_molecule1 = new THREE.Mesh(moleculeShape1, cover3);
+bipyramidal.add(p_molecule1);
+p_molecule1.position.set(0.4,0.0,0.0);
 var geometry = new THREE.Geometry();
-geometry.vertices.push(
-  new THREE.Vector3( 0.4, 0.4, 0.4 ),
-  new THREE.Vector3( 0, 0, 0 )
-);
+geometry.vertices.push(new THREE.Vector3(0.4,0.0,0.0), new THREE.Vector3( 0, 0, 0 ));
 var t_line1 = new THREE.Line(geometry);
-tetrahedral.add(t_line1, cover);
+bipyramidal.add(t_line1, cover);
 
-var t_molecule2 = new THREE.Mesh(moleculeShape1, cover3);
-tetrahedral.add(t_molecule2);
-t_molecule2.position.set(0.4,-0.4,-0.4);
+
+var p_molecule2 = new THREE.Mesh(moleculeShape1, cover3);
+bipyramidal.add(p_molecule2);
+p_molecule2.position.set(-0.2828,0.0,0.2828);
 var geometry = new THREE.Geometry();
-geometry.vertices.push(
-  new THREE.Vector3(0.4,-0.4,-0.4),
-  new THREE.Vector3( 0, 0, 0 )
-);
+geometry.vertices.push(new THREE.Vector3(-0.2828,0.0,0.2828), new THREE.Vector3( 0, 0, 0 ));
 var t_line1 = new THREE.Line(geometry);
-tetrahedral.add(t_line1, cover);
+bipyramidal.add(t_line1, cover);
 
-var t_molecule3 = new THREE.Mesh(moleculeShape1, cover3);
-tetrahedral.add(t_molecule3);
-t_molecule3.position.set(-0.4,0.4,-0.4);
+var p_molecule3 = new THREE.Mesh(moleculeShape1, cover3);
+bipyramidal.add(p_molecule3);
+p_molecule3.position.set(-0.2828,0.0,-0.2828);
 var geometry = new THREE.Geometry();
-geometry.vertices.push(
-  new THREE.Vector3(-0.4,0.4,-0.4),
-  new THREE.Vector3( 0, 0, 0 )
-);
+geometry.vertices.push(new THREE.Vector3(-0.2828,0.0,-0.2828), new THREE.Vector3( 0, 0, 0 ));
 var t_line1 = new THREE.Line(geometry);
-tetrahedral.add(t_line1, cover);
+bipyramidal.add(t_line1, cover);
 
-
-var t_molecule4 = new THREE.Mesh(moleculeShape1, cover3);
-tetrahedral.add(t_molecule4);
-t_molecule4.position.set(-0.4,-0.4,0.4);
+var p_molecule4 = new THREE.Mesh(moleculeShape1, cover3);
+bipyramidal.add(p_molecule4);
+p_molecule4.position.set(0,-0.4,0);
 var geometry = new THREE.Geometry();
-geometry.vertices.push(
-  new THREE.Vector3(-0.4,-0.4,0.4),
-  new THREE.Vector3( 0, 0, 0 )
-);
+geometry.vertices.push(new THREE.Vector3(0,-0.4,0), new THREE.Vector3( 0, 0, 0 ));
 var t_line1 = new THREE.Line(geometry);
-tetrahedral.add(t_line1, cover);
+bipyramidal.add(t_line1, cover);
+
+var p_molecule5 = new THREE.Mesh(moleculeShape1, cover3);
+bipyramidal.add(p_molecule5);
+p_molecule5.position.set(0,0.4,0);
+var geometry = new THREE.Geometry();
+geometry.vertices.push(new THREE.Vector3(0,0.4,0), new THREE.Vector3( 0, 0, 0 ));
+var t_line1 = new THREE.Line(geometry);
+bipyramidal.add(t_line1, cover);
 
 
-scene.add(tetrahedral);
-// tetrahedral.visible = true;
+scene.add(bipyramidal);
 
 
 // *** renderer ***
@@ -83,9 +78,9 @@ renderer.setSize(300, 200);
 renderer.domElement.id = '3dmodel';
 document.body.appendChild(renderer.domElement);
 
-    tetrahedral.scale.x = 1.5;
-    tetrahedral.scale.y = 1.5;
-    tetrahedral.scale.z = 1.5;
+    bipyramidal.scale.x = 1.5;
+    bipyramidal.scale.y = 1.5;
+    bipyramidal.scale.z = 1.5;
 
 // *** animation ***
 // Animate motion using a clock timer.
@@ -100,8 +95,7 @@ function animate() {
 
   // Display what the camera sees onto the browser screen.
   renderer.render(scene, camera);
-  tetrahedral.rotateOnAxis(y_axis, 0.07);
-
+  bipyramidal.rotateOnAxis(y_axis, 0.07);
 }
 
 // Run the animation.
